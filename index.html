@@ -174,7 +174,6 @@
     input::placeholder { color: #6e756c; }
     input:focus { outline:2px solid #f8e7b0; outline-offset:1px; }
 
-    /* 🌟 CONTADOR DE FAMILIAS */
     .family-counter {
       background: linear-gradient(135deg, #f0d48a 0%, #d9b86c 100%);
       color: #5d0e1c;
@@ -232,12 +231,6 @@
   </style>
 </head>
 <body>
-
-  <!-- 🎯 FORMULARIO OCULTO PARA ENVIAR A APPS SCRIPT (100% confiable) -->
-  <iframe name="rsvp_sink" id="rsvp_sink" style="display:none; width:0; height:0; border:0;"></iframe>
-  <form id="rsvp_sink_form" method="POST" target="rsvp_sink" style="display:none;">
-    <input type="hidden" name="name" id="rsvp_sink_name">
-  </form>
 
   <!-- 🪅 Piñata colgante -->
   <div class="pinata-wrap" aria-hidden="true">
@@ -433,7 +426,7 @@
 
     /* ========== 5) RSVP + GOOGLE SHEETS ========== */
     // 👇 URL de tu aplicación web (ya con la tuya puesta)
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzNP7Kw0NmEEjin89fHfNO6aPjGG8hrSOT3XaKbt_sbLJ98ReGoAWa8g6B8RARrxEne_Q/exec";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwG7BF4NGWR-LDCaD7nvOIg_jfarYu5JI9sj9pRPgofb24KTJanPtE5r81P5Fg3A9w1Eg/exec";
 
     const STORAGE_KEY = "posada_confirmaciones";
     const form  = document.getElementById("rsvpForm");
@@ -531,7 +524,7 @@
       });
     }
 
-    /* 📝 Envío del formulario vía FORMULARIO OCULTO (sin CORS) */
+    /* 📝 Envío del formulario vía URLSearchParams */
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const name = input.value.trim().replace(/\s+/g, " ");
@@ -560,29 +553,36 @@
         return;
       }
 
-      // ✅ ENVÍO VÍA FORMULARIO OCULTO → target iframe
-      const hiddenForm  = document.getElementById("rsvp_sink_form");
-      const hiddenInput = document.getElementById("rsvp_sink_name");
-      hiddenForm.action = APPS_SCRIPT_URL;
-      hiddenInput.value = name;
-      hiddenForm.submit();
+      // ✅ POST con URLSearchParams (urlencoded → e.parameter.name en Apps Script)
+      const payload = new URLSearchParams();
+      payload.append("name", name);
 
-      // Esperar y verificar
-      setTimeout(async function(){
-        await loadFamiliesFromSheet();
-        const refreshed = getCachedFamilies();
-        const nameLower = name.toLocaleLowerCase("es-MX");
-        const llego = refreshed.some(f => f.toLocaleLowerCase("es-MX") === nameLower);
-
-        if (llego) {
-          setStatus("✅ ¡Confirmación guardada! Ya apareces en la lista.");
-        } else {
-          const sinNombre = refreshed.filter(f => f.toLocaleLowerCase("es-MX") !== nameLower);
+      fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        body: payload
+      })
+        .then(response => {
+          if (!response.ok) throw new Error("Error del servidor: " + response.status);
+          return response.json();
+        })
+        .then(data => {
+          if (data.result === "success") {
+            setStatus("✅ ¡Confirmación guardada! Ya apareces en la lista.");
+            setTimeout(loadFamiliesFromSheet, 500);
+          } else {
+            throw new Error(data.error || "Respuesta inesperada del servidor.");
+          }
+        })
+        .catch(err => {
+          console.error("❌ Error en el POST:", err);
+          setStatus("⚠️ No se pudo confirmar en el servidor. Intenta de nuevo.");
+          // Revertir el nombre de la lista local si el guardado falló
+          const sinNombre = getCachedFamilies().filter(
+            f => f.toLocaleLowerCase("es-MX") !== name.toLocaleLowerCase("es-MX")
+          );
           localStorage.setItem(STORAGE_KEY, JSON.stringify(sinNombre));
           renderFamilies(sinNombre);
-          setStatus("⚠️ No se pudo confirmar en el servidor. Intenta de nuevo.");
-        }
-      }, 2500);
+        });
     });
 
     // 🚀 Al cargar
