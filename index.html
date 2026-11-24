@@ -23,7 +23,6 @@
       position: relative;
     }
 
-    /* ---------- PIÑATA ---------- */
     .pinata-wrap {
       position: fixed; top: 0; left: calc(50% - 40px);
       width: 80px; z-index: 60;
@@ -37,20 +36,11 @@
       50%     { transform: rotate(7deg); }
     }
 
-    /* ---------- NIEVE ---------- */
-    #snowfall {
-      position: fixed; inset: 0;
-      pointer-events: none;
-      z-index: 50;
-      overflow: hidden;
-    }
+    #snowfall { position: fixed; inset: 0; pointer-events: none; z-index: 50; overflow: hidden; }
     .snowflake {
-      position: absolute;
-      top: -10vh;
-      color: #fff;
+      position: absolute; top: -10vh; color: #fff;
       text-shadow: 0 0 8px rgba(255,255,255,.95), 0 0 2px rgba(255,255,255,1);
-      animation: fall linear infinite;
-      will-change: transform;
+      animation: fall linear infinite; will-change: transform;
     }
     @keyframes fall {
       0%   { transform: translateY(0) translateX(0) rotate(0deg); }
@@ -58,31 +48,19 @@
       100% { transform: translateY(110vh) translateX(-20px) rotate(360deg); }
     }
 
-    /* ---------- OBJETOS FLOTANDO ---------- */
-    #floaters {
-      position: fixed; inset: 0;
-      pointer-events: none;
-      z-index: 0;
-    }
+    #floaters { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
     .floater {
-      position: absolute;
-      font-size: clamp(1.6rem, 3vw, 2.4rem);
-      opacity: 0.28;
+      position: absolute; font-size: clamp(1.6rem, 3vw, 2.4rem); opacity: 0.28;
       filter: drop-shadow(0 4px 6px rgba(0,0,0,.5));
-      animation: bob 6s ease-in-out infinite;
-      will-change: transform;
+      animation: bob 6s ease-in-out infinite; will-change: transform;
     }
     @keyframes bob {
       0%,100% { transform: translateY(0) rotate(-6deg); }
       50%     { transform: translateY(-22px) rotate(6deg); }
     }
 
-    /* ---------- EXPLOSIÓN ---------- */
     .explosion-particle {
-      position: fixed;
-      pointer-events: none;
-      z-index: 9999;
-      font-weight: 700;
+      position: fixed; pointer-events: none; z-index: 9999; font-weight: 700;
       text-shadow: 0 0 6px rgba(255,255,255,.8);
       animation: explode 1.4s cubic-bezier(.15,.7,.3,1) forwards;
       will-change: transform, opacity;
@@ -92,18 +70,11 @@
       100% { transform: translate(calc(-50% + var(--vx)), calc(-50% + var(--vy))) scale(.2) rotate(540deg); opacity: 0; }
     }
 
-    /* ---------- CONTENIDO ---------- */
     main {
-      position: relative;
-      z-index: 2;
-      width: min(100%, 680px);
-      margin: auto;
-      display: grid;
-      gap: 20px;
-      padding-top: 40px;
+      position: relative; z-index: 2; width: min(100%, 680px);
+      margin: auto; display: grid; gap: 20px; padding-top: 40px;
     }
 
-    /* PANELES ROJOS NAVIDEÑOS */
     .panel {
       position: relative;
       background: linear-gradient(160deg, #a91e2c 0%, #7a1520 55%, #5d0e1c 100%);
@@ -119,13 +90,9 @@
     }
 
     .deco {
-      position: absolute;
-      font-size: 1.3rem;
-      opacity: 0.9;
-      pointer-events: none;
-      animation: bob 5s ease-in-out infinite;
-      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));
-      z-index: 1;
+      position: absolute; font-size: 1.3rem; opacity: 0.9;
+      pointer-events: none; animation: bob 5s ease-in-out infinite;
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)); z-index: 1;
     }
     .deco-tl { top: 10px; left: 14px;  animation-delay: -1s; }
     .deco-tr { top: 10px; right: 14px; animation-delay: -2s; }
@@ -144,16 +111,12 @@
     }
     h1,h2 { font-family:"Playfair Display",serif; }
     h1 {
-      font-size: clamp(2.3rem, 8vw, 4.2rem);
-      line-height:1.05; margin:12px 0;
-      color: var(--gold);
-      text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+      font-size: clamp(2.3rem, 8vw, 4.2rem); line-height:1.05; margin:12px 0;
+      color: var(--gold); text-shadow: 0 2px 6px rgba(0,0,0,0.5);
     }
     h2 {
-      font-size: clamp(1.4rem, 5vw, 2rem);
-      margin:0 0 12px;
-      color: var(--gold);
-      text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+      font-size: clamp(1.4rem, 5vw, 2rem); margin:0 0 12px;
+      color: var(--gold); text-shadow: 0 1px 3px rgba(0,0,0,0.4);
     }
     p { line-height:1.7; color: var(--cream); }
 
@@ -161,30 +124,19 @@
     .message { max-width:480px; margin:18px auto; }
 
     .gift-row {
-      font-size: clamp(1.4rem, 4vw, 1.9rem);
-      letter-spacing: .35em;
-      margin: 14px 0 4px;
-      display: block;
+      font-size: clamp(1.4rem, 4vw, 1.9rem); letter-spacing: .35em;
+      margin: 14px 0 4px; display: block;
       animation: bob 4s ease-in-out infinite;
       filter: drop-shadow(0 2px 4px rgba(0,0,0,.35));
     }
 
     .hero-image {
-      margin: 20px auto 12px;
-      max-width: 280px;
-      width: 100%;
-      border-radius: 16px;
-      overflow: hidden;
-      border: 3px solid var(--gold);
-      box-shadow: 0 10px 22px rgba(0,0,0,.45);
-      background: #0d2a4a;
-      display: block;
+      margin: 20px auto 12px; max-width: 280px; width: 100%;
+      border-radius: 16px; overflow: hidden;
+      border: 3px solid var(--gold); box-shadow: 0 10px 22px rgba(0,0,0,.45);
+      background: #0d2a4a; display: block;
     }
-    .hero-image img {
-      display: block;
-      width: 100%;
-      height: auto;
-    }
+    .hero-image img { display: block; width: 100%; height: auto; }
 
     .details {
       border-top: 1px solid rgba(217,184,108,0.5);
@@ -192,11 +144,8 @@
       padding: 16px 0; margin: 22px 0; display: grid; gap: 10px;
     }
     .detail strong {
-      color: var(--gold);
-      text-transform: uppercase;
-      font-size: .8rem;
-      letter-spacing: .08em;
-      display: block;
+      color: var(--gold); text-transform: uppercase; font-size: .8rem;
+      letter-spacing: .08em; display: block;
       text-shadow: 0 1px 2px rgba(0,0,0,0.4);
     }
     .detail span { color: var(--cream); }
@@ -208,8 +157,7 @@
       border:2px solid #f8e7b0; border-radius:999px;
       padding:12px 22px; cursor:pointer;
       transition: transform .2s, background .2s, color .2s;
-      position: relative;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.4);
     }
     .button:hover { background:#f0d48a; transform: translateY(-2px); }
 
@@ -226,26 +174,51 @@
     input::placeholder { color: #6e756c; }
     input:focus { outline:2px solid #f8e7b0; outline-offset:1px; }
 
+    /* 🌟 CONTADOR DE FAMILIAS */
+    .family-counter {
+      background: linear-gradient(135deg, #f0d48a 0%, #d9b86c 100%);
+      color: #5d0e1c;
+      border-radius: 20px;
+      padding: 18px 26px;
+      margin: 22px auto 8px;
+      max-width: 340px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.45), inset 0 0 0 3px #fff8e9;
+      border: 2px solid #b8985a;
+    }
+    .counter-number {
+      font-family: "Playfair Display", serif;
+      font-size: 3rem;
+      font-weight: 700;
+      line-height: 1;
+      color: #7a1520;
+      text-shadow: 0 2px 0 rgba(255,255,255,0.3);
+    }
+    .counter-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-weight: 700;
+      margin-top: 6px;
+      color: #5d0e1c;
+    }
+    .counter-emoji { font-size: 1.1rem; margin-bottom: 2px; }
+
     .list { list-style:none; padding:0; margin:16px auto 0; max-width:520px; text-align:left; }
     .list li {
       background: linear-gradient(135deg, #e9c97e 0%, #d9b86c 100%);
-      color: #3a1a0a;
-      border: 1px solid #b8985a;
-      border-radius: 10px;
-      padding: 12px 16px;
-      margin: 8px 0;
-      font-weight: 700;
+      color: #3a1a0a; border: 1px solid #b8985a; border-radius: 10px;
+      padding: 12px 16px; margin: 8px 0; font-weight: 700;
       box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     }
     .list li.empty {
-      background: transparent;
-      border: 1px dashed rgba(248,231,176,0.5);
-      color: #ffe8b8;
-      font-style: italic;
-      font-weight: 400;
-      box-shadow: none;
+      background: transparent; border: 1px dashed rgba(248,231,176,0.5);
+      color: #ffe8b8; font-style: italic; font-weight: 400; box-shadow: none;
     }
     .note { font-size:.8rem; color: #ffe0a8; margin-top:12px; }
+    #statusNote { font-style: italic; min-height: 1.2em; display: block; }
     footer { text-align:center; color:#e9d59a; font-size:.8rem; padding:6px; }
 
     @media(max-width:420px){
@@ -254,12 +227,12 @@
       .rsvp form{display:grid}
       .button{width:100%}
       .hero-image{ max-width: 220px; }
+      .counter-number { font-size: 2.4rem; }
     }
   </style>
 </head>
 <body>
 
-  <!-- 🪅 Piñata colgante -->
   <div class="pinata-wrap" aria-hidden="true">
     <svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg">
       <line x1="40" y1="0" x2="40" y2="22" stroke="#c8a04a" stroke-width="1.6"/>
@@ -282,14 +255,11 @@
     </svg>
   </div>
 
-  <!-- ❄️ Nieve -->
   <div id="snowfall" aria-hidden="true"></div>
-  <!-- 🎄 Objetos flotando -->
   <div id="floaters" aria-hidden="true"></div>
 
   <main>
 
-    <!-- ⏱️ 1) CUENTA REGRESIVA ARRIBA -->
     <section class="panel countdown-top">
       <span class="deco deco-tl" aria-hidden="true">❄</span>
       <span class="deco deco-tr" aria-hidden="true">🎄</span>
@@ -307,7 +277,6 @@
       <div class="gift-row" aria-hidden="true">🎁 🎀 ⏱️ 🎀 🎁</div>
     </section>
 
-    <!-- 🎄 2) INVITACIÓN PRINCIPAL -->
     <section class="panel">
       <span class="deco deco-tl" aria-hidden="true">🎄</span>
       <span class="deco deco-tr" aria-hidden="true">❄</span>
@@ -318,7 +287,6 @@
       <div class="ornament" aria-hidden="true">✦ ❄ ✦</div>
       <h1>¡Posada<br>Navideña!</h1>
 
-      <!-- 🖼️ Imagen debajo del título -->
       <figure class="hero-image">
         <img src="coro.png" alt="Posada Navideña">
       </figure>
@@ -344,7 +312,6 @@
       <p class="message"><strong>¡Ven con toda la alegría y las ganas de celebrar!</strong></p>
     </section>
 
-    <!-- 🎀 3) RSVP -->
     <section class="panel rsvp">
       <span class="deco deco-tl" aria-hidden="true">🎁</span>
       <span class="deco deco-tr" aria-hidden="true">⭐</span>
@@ -360,11 +327,18 @@
         <button class="button" type="submit" id="rsvpBtn">🎄 Sí, asistimos</button>
       </form>
 
-      <h2 style="font-size:1.25rem;margin-top:24px">Familias que nos acompañan</h2>
+      <!-- 🌟 CONTADOR DE FAMILIAS CONFIRMADAS -->
+      <div class="family-counter" aria-live="polite">
+        <span class="counter-emoji" aria-hidden="true">🎄</span>
+        <span class="counter-number" id="familyCount">0</span>
+        <span class="counter-label">familias confirmadas</span>
+      </div>
+
+      <h2 style="font-size:1.25rem;margin-top:16px">Familias que nos acompañan</h2>
       <ul id="confirmedList" class="list">
-        <li class="empty">Aún no hay confirmaciones. ¡Sé la primera familia!</li>
+        <li class="empty">Cargando lista...</li>
       </ul>
-      <p class="note">Las confirmaciones se guardan en Google Sheets y se muestran a todos los invitados.</p>
+      <p class="note" id="statusNote">Sincronizando con Google Sheets...</p>
     </section>
 
     <footer>Con cariño, te esperamos para celebrar esta Navidad ✨</footer>
@@ -388,7 +362,7 @@
     updateCountdown();
     setInterval(updateCountdown, 1000);
 
-    /* ========== 2) NIEVE CAYENDO ========== */
+    /* ========== 2) NIEVE ========== */
     (function createSnowfall(){
       const container = document.getElementById("snowfall");
       const glyphs = ["❄","❅","❆","•","✦","❉"];
@@ -426,7 +400,7 @@
       }
     })();
 
-    /* ========== 4) EXPLOSIÓN DE COPOS ========== */
+    /* ========== 4) EXPLOSIÓN ========== */
     function createSnowExplosion(cx, cy){
       const colors = ["#ffffff","#e0f0ff","#fff4c8","#ffe8f0","#d9b86c","#a91e2c"];
       const shapes = ["❄","✦","❅","❆","✻","★","●","✿"];
@@ -452,22 +426,27 @@
     }
 
     /* ========== 5) RSVP + GOOGLE SHEETS ========== */
-    // 👇 Pega aquí la URL de tu aplicación web de Google Apps Script
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxHG2XyzDGHkuTusBMSp5A4yhvQKlg_8jPcAIbcE1KZl6Cm9zAupPqTUTPyKb2nc3p8yQ/exec";
+    // 👇 Pega aquí tu URL real de Apps Script
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzCfioL2ofHpiUwmRXEVeg6Sd1EC-rb0YLqk0NaknRU9iqT60HSTCH31tU5wkgpIHg43Q/exec";
 
     const STORAGE_KEY = "posada_confirmaciones";
     const form  = document.getElementById("rsvpForm");
     const input = document.getElementById("familyName");
     const list  = document.getElementById("confirmedList");
+    const counterEl = document.getElementById("familyCount");
+    const statusEl  = document.getElementById("statusNote");
 
     function getCachedFamilies(){
       try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
       catch { return []; }
     }
 
+    function setStatus(msg){ if (statusEl) statusEl.textContent = msg; }
+
     function renderFamilies(families){
       if (!Array.isArray(families)) families = getCachedFamilies();
       list.replaceChildren();
+      counterEl.textContent = families.length;
 
       if (!families.length){
         const li = document.createElement("li");
@@ -483,28 +462,57 @@
       });
     }
 
-    /* 🔄 Lee la lista real desde Google Sheets */
+    /* 🔄 Lee la lista desde Google Sheets (con anti-caché) */
     async function loadFamiliesFromSheet(){
       if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
         renderFamilies(getCachedFamilies());
+        setStatus("Modo local (sin conexión a Sheets).");
         return;
       }
+
+      setStatus("Sincronizando con Google Sheets...");
+
       try {
-        const res  = await fetch(APPS_SCRIPT_URL, { method: "GET" });
-        const data = await res.json();
+        // Añadimos timestamp para romper caché y forzar respuesta fresca
+        const url = APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes("?") ? "&" : "?") + "_=" + Date.now();
+
+        const res = await fetch(url, {
+          method: "GET",
+          cache: "no-store",
+          redirect: "follow"
+        });
+
+        if (!res.ok) throw new Error("HTTP " + res.status);
+
+        const texto = await res.text();
+
+        // Si no es JSON, probablemente es un HTML de login (deployment no público)
+        let data;
+        try {
+          data = JSON.parse(texto);
+        } catch {
+          console.error("La respuesta no es JSON. ¿El deployment es público?", texto.slice(0, 200));
+          setStatus("⚠️ No se pudo leer la lista (revisa el deployment del script).");
+          renderFamilies(getCachedFamilies());
+          return;
+        }
+
         if (data.result === "success" && Array.isArray(data.families)) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(data.families));
           renderFamilies(data.families);
+          setStatus("✅ Lista sincronizada con Google Sheets.");
         } else {
+          console.warn("Respuesta inesperada:", data);
           renderFamilies(getCachedFamilies());
+          setStatus("Respuesta inesperada del servidor.");
         }
       } catch (err) {
-        console.error("No se pudo cargar la lista desde Google Sheets:", err);
+        console.error("Error al cargar desde Sheets:", err);
+        setStatus("⚠️ No se pudo sincronizar. Mostrando datos en caché.");
         renderFamilies(getCachedFamilies());
       }
     }
 
-    /* Envío del formulario */
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const name = input.value.trim().replace(/\s+/g, " ");
@@ -516,18 +524,16 @@
         return;
       }
 
-      // 🎆 Explosión sobre el botón
       const btn  = document.getElementById("rsvpBtn");
       const rect = btn.getBoundingClientRect();
       createSnowExplosion(rect.left + rect.width / 2, rect.top + rect.height / 2);
 
-      // Actualización optimista (feedback inmediato)
+      // Optimista: agregamos visualmente de inmediato
       const updated = [...current, name];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
       renderFamilies(updated);
       input.value = "";
 
-      // POST a Google Sheets
       if (APPS_SCRIPT_URL && !APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
         try {
           await fetch(APPS_SCRIPT_URL, {
@@ -535,16 +541,19 @@
             headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify({ name: name })
           });
-          setTimeout(loadFamiliesFromSheet, 900);
+          // Refrescamos la lista real después de guardar
+          setTimeout(loadFamiliesFromSheet, 1000);
         } catch (err) {
-          console.error("❌ Error al enviar a Google Sheets:", err);
-          alert("Tu nombre se guardó en este navegador, pero puede que no llegue a la lista general. Revisa tu conexión.");
+          console.error("❌ Error al enviar:", err);
+          alert("No se pudo enviar a la lista general. Revisa tu conexión.");
         }
       }
     });
 
-    /* 🚀 Al cargar la página, trae la lista desde Google Sheets */
+    // 🚀 Al cargar, trae la lista real
     loadFamiliesFromSheet();
+    // 🔄 Refresca cada 30 segundos para mantener la lista "en vivo"
+    setInterval(loadFamiliesFromSheet, 30000);
   </script>
 </body>
 </html>
