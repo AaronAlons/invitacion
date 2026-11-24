@@ -427,7 +427,7 @@
 
     /* ========== 5) RSVP + GOOGLE SHEETS ========== */
     // 👇 Pega aquí tu URL real de Apps Script
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxwug3UkUjaKxN1vjqTHZFAtM3J3Vz3ZnT6SBXfN7_W73uPzanXV59qvUefZY6EqISWEA/exec";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyeiEex-4u8kLmQEYL9in8iOb3ksRaVW4JnIe_LGriYEY3n7jCgp8P7A69Y3VPRgxkQnA/exec";
 
     const STORAGE_KEY = "posada_confirmaciones";
     const form  = document.getElementById("rsvpForm");
@@ -463,55 +463,67 @@
     }
 
     /* 🔄 Lee la lista desde Google Sheets (con anti-caché) */
-    async function loadFamiliesFromSheet(){
-      if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
-        renderFamilies(getCachedFamilies());
-        setStatus("Modo local (sin conexión a Sheets).");
-        return;
-      }
+    function loadFamiliesFromSheet(){
+  return new Promise((resolve) => {
+    if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
+      renderFamilies(getCachedFamilies());
+      setStatus("Modo local (sin conexión a Sheets).");
+      resolve();
+      return;
+    }
 
-      setStatus("Sincronizando con Google Sheets...");
+    setStatus("Sincronizando con Google Sheets...");
 
+    const callbackName = "posadaCb_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+    const url = APPS_SCRIPT_URL
+      + (APPS_SCRIPT_URL.includes("?") ? "&" : "?")
+      + "callback=" + callbackName
+      + "&_=" + Date.now();
+
+    let done = false;
+    function finish(){
+      if (done) return;
+      done = true;
+      delete window[callbackName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      resolve();
+    }
+
+    // Función global que Apps Script llamará
+    window[callbackName] = function(data){
       try {
-        // Añadimos timestamp para romper caché y forzar respuesta fresca
-        const url = APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes("?") ? "&" : "?") + "_=" + Date.now();
-
-        const res = await fetch(url, {
-          method: "GET",
-          cache: "no-store",
-          redirect: "follow"
-        });
-
-        if (!res.ok) throw new Error("HTTP " + res.status);
-
-        const texto = await res.text();
-
-        // Si no es JSON, probablemente es un HTML de login (deployment no público)
-        let data;
-        try {
-          data = JSON.parse(texto);
-        } catch {
-          console.error("La respuesta no es JSON. ¿El deployment es público?", texto.slice(0, 200));
-          setStatus("⚠️ No se pudo leer la lista (revisa el deployment del script).");
-          renderFamilies(getCachedFamilies());
-          return;
-        }
-
-        if (data.result === "success" && Array.isArray(data.families)) {
+        if (data && data.result === "success" && Array.isArray(data.families)) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(data.families));
           renderFamilies(data.families);
           setStatus("✅ Lista sincronizada con Google Sheets.");
         } else {
-          console.warn("Respuesta inesperada:", data);
           renderFamilies(getCachedFamilies());
           setStatus("Respuesta inesperada del servidor.");
         }
-      } catch (err) {
-        console.error("Error al cargar desde Sheets:", err);
-        setStatus("⚠️ No se pudo sincronizar. Mostrando datos en caché.");
-        renderFamilies(getCachedFamilies());
+      } finally {
+        finish();
       }
-    }
+    };
+
+    const script = document.createElement("script");
+    script.src = url;
+    script.onerror = function(){
+      renderFamilies(getCachedFamilies());
+      setStatus("⚠️ No se pudo sincronizar. Mostrando datos en caché.");
+      finish();
+    };
+    document.body.appendChild(script);
+
+    // Respaldo por si no responde en 8 segundos
+    setTimeout(function(){
+      if (!done){
+        renderFamilies(getCachedFamilies());
+        setStatus("⚠️ Tiempo de espera agotado. Mostrando datos en caché.");
+        finish();
+      }
+    }, 8000);
+  });
+}
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
