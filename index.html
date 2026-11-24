@@ -547,19 +547,19 @@
       input.value = "";
 
       if (APPS_SCRIPT_URL && !APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
-        try {
-          await fetch(APPS_SCRIPT_URL, {
-            method: "POST",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({ name: name })
-          });
-          // Refrescamos la lista real después de guardar
-          setTimeout(loadFamiliesFromSheet, 1000);
-        } catch (err) {
-          console.error("❌ Error al enviar:", err);
-          alert("No se pudo enviar a la lista general. Revisa tu conexión.");
-        }
-      }
+  // POST con no-cors: enviamos sin intentar leer la respuesta (evita CORS falso)
+  fetch(APPS_SCRIPT_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ name: name })
+  }).catch(function(err){
+    console.warn("Aviso de red al enviar (normal en no-cors):", err);
+  });
+
+  // Refrescamos la lista desde la hoja (por JSONP) después de 1.2s
+  setTimeout(loadFamiliesFromSheet, 1200);
+}
     });
 
     // 🚀 Al cargar, trae la lista real
