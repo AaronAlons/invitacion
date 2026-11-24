@@ -233,6 +233,13 @@
 </head>
 <body>
 
+  <!-- 🎯 FORMULARIO OCULTO PARA ENVIAR A APPS SCRIPT (100% confiable) -->
+  <iframe name="rsvp_sink" id="rsvp_sink" style="display:none; width:0; height:0; border:0;"></iframe>
+  <form id="rsvp_sink_form" method="POST" target="rsvp_sink" style="display:none;">
+    <input type="hidden" name="name" id="rsvp_sink_name">
+  </form>
+
+  <!-- 🪅 Piñata colgante -->
   <div class="pinata-wrap" aria-hidden="true">
     <svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg">
       <line x1="40" y1="0" x2="40" y2="22" stroke="#c8a04a" stroke-width="1.6"/>
@@ -327,7 +334,6 @@
         <button class="button" type="submit" id="rsvpBtn">🎄 Sí, asistimos</button>
       </form>
 
-      <!-- 🌟 CONTADOR DE FAMILIAS CONFIRMADAS -->
       <div class="family-counter" aria-live="polite">
         <span class="counter-emoji" aria-hidden="true">🎄</span>
         <span class="counter-number" id="familyCount">0</span>
@@ -426,8 +432,8 @@
     }
 
     /* ========== 5) RSVP + GOOGLE SHEETS ========== */
-    // 👇 Pega aquí tu URL real de Apps Script
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwU4cQc9pr0uOrJAAnoX11E5VVzO_eGrcOv5-aS5r1EEx6paRGaZpK1XfF5K0TBD6ZVVg/exec";
+    // 👇 URL de tu aplicación web (ya con la tuya puesta)
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzNP7Kw0NmEEjin89fHfNO6aPjGG8hrSOT3XaKbt_sbLJ98ReGoAWa8g6B8RARrxEne_Q/exec";
 
     const STORAGE_KEY = "posada_confirmaciones";
     const form  = document.getElementById("rsvpForm");
@@ -462,135 +468,126 @@
       });
     }
 
-    /* 🔄 Lee la lista desde Google Sheets (con anti-caché) */
+    /* 🔄 Lee la lista desde Google Sheets vía JSONP */
     function loadFamiliesFromSheet(){
-  return new Promise((resolve) => {
-    if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
-      renderFamilies(getCachedFamilies());
-      setStatus("Modo local (sin conexión a Sheets).");
-      resolve();
-      return;
-    }
-
-    setStatus("Sincronizando con Google Sheets...");
-
-    const callbackName = "posadaCb_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
-    const url = APPS_SCRIPT_URL
-      + (APPS_SCRIPT_URL.includes("?") ? "&" : "?")
-      + "callback=" + callbackName
-      + "&_=" + Date.now();
-
-    let done = false;
-    function finish(){
-      if (done) return;
-      done = true;
-      delete window[callbackName];
-      if (script.parentNode) script.parentNode.removeChild(script);
-      resolve();
-    }
-
-    // Función global que Apps Script llamará
-    window[callbackName] = function(data){
-      try {
-        if (data && data.result === "success" && Array.isArray(data.families)) {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(data.families));
-          renderFamilies(data.families);
-          setStatus("✅ Lista sincronizada con Google Sheets.");
-        } else {
+      return new Promise((resolve) => {
+        if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
           renderFamilies(getCachedFamilies());
-          setStatus("Respuesta inesperada del servidor.");
+          setStatus("Modo local (sin conexión a Sheets).");
+          resolve();
+          return;
         }
-      } finally {
-        finish();
-      }
-    };
 
-    const script = document.createElement("script");
-    script.src = url;
-    script.onerror = function(){
-      renderFamilies(getCachedFamilies());
-      setStatus("⚠️ No se pudo sincronizar. Mostrando datos en caché.");
-      finish();
-    };
-    document.body.appendChild(script);
+        setStatus("Sincronizando con Google Sheets...");
 
-    // Respaldo por si no responde en 8 segundos
-    setTimeout(function(){
-      if (!done){
-        renderFamilies(getCachedFamilies());
-        setStatus("⚠️ Tiempo de espera agotado. Mostrando datos en caché.");
-        finish();
-      }
-    }, 8000);
-  });
-}
+        const callbackName = "posadaCb_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+        const url = APPS_SCRIPT_URL
+          + (APPS_SCRIPT_URL.includes("?") ? "&" : "?")
+          + "callback=" + callbackName
+          + "&_=" + Date.now();
 
-form.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const name = input.value.trim().replace(/\s+/g, " ");
-  if (!name) return;
+        let done = false;
+        let script;
 
-  const current = getCachedFamilies();
-  if (current.some(f => f.toLocaleLowerCase("es-MX") === name.toLocaleLowerCase("es-MX"))) {
-    alert("Esta familia ya aparece en la lista.");
-    return;
-  }
+        function finish(){
+          if (done) return;
+          done = true;
+          delete window[callbackName];
+          if (script && script.parentNode) script.parentNode.removeChild(script);
+          resolve();
+        }
 
-  // 🎆 Explosión
-  const btn  = document.getElementById("rsvpBtn");
-  const rect = btn.getBoundingClientRect();
-  createSnowExplosion(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        window[callbackName] = function(data){
+          try {
+            if (data && data.result === "success" && Array.isArray(data.families)) {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(data.families));
+              renderFamilies(data.families);
+              setStatus("✅ Lista sincronizada con Google Sheets.");
+            } else {
+              renderFamilies(getCachedFamilies());
+              setStatus("Respuesta inesperada del servidor.");
+            }
+          } finally {
+            finish();
+          }
+        };
 
-  // Optimista: mostramos el nombre mientras se envía
-  const updated = [...current, name];
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-  renderFamilies(updated);
-  input.value = "";
-  setStatus("⏳ Guardando tu confirmación...");
+        script = document.createElement("script");
+        script.src = url;
+        script.onerror = function(){
+          renderFamilies(getCachedFamilies());
+          setStatus("⚠️ No se pudo sincronizar. Mostrando datos en caché.");
+          finish();
+        };
+        document.body.appendChild(script);
 
-  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
-    setStatus("⚠️ Falta configurar APPS_SCRIPT_URL.");
-    return;
-  }
-
-  // ✅ POST con FormData (la forma más confiable con no-cors)
-  try {
-    const formData = new FormData();
-    formData.append("name", name);
-
-    fetch(APPS_SCRIPT_URL, {
-      method: "POST",
-      mode: "no-cors",   // sin CORS: enviamos sin leer respuesta
-      body: formData      // multipart/form-data → Google nunca pierde el body
-    }).catch(function(err){
-      console.warn("Aviso de red al enviar (normal en no-cors):", err);
-    });
-  } catch (err) {
-    console.warn("Error al preparar el POST:", err);
-  }
-
-  // Esperamos y verificamos si el nombre llegó realmente a la hoja
-  setTimeout(async function(){
-    await loadFamiliesFromSheet();
-    const refreshed = getCachedFamilies();
-    const nameLower = name.toLocaleLowerCase("es-MX");
-    const llego = refreshed.some(f => f.toLocaleLowerCase("es-MX") === nameLower);
-
-    if (llego) {
-      setStatus("✅ ¡Confirmación guardada! Ya apareces en la lista.");
-    } else {
-      // No llegó: revertimos la actualización optimista
-      const sinNombre = refreshed.filter(f => f.toLocaleLowerCase("es-MX") !== nameLower);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(sinNombre));
-      renderFamilies(sinNombre);
-      setStatus("⚠️ No se pudo confirmar en el servidor. Intenta de nuevo.");
+        setTimeout(function(){
+          if (!done){
+            renderFamilies(getCachedFamilies());
+            setStatus("⚠️ Tiempo de espera agotado. Mostrando datos en caché.");
+            finish();
+          }
+        }, 8000);
+      });
     }
-  }, 1800);
-});
 
-    // 🚀 Al cargar, trae la lista real
+    /* 📝 Envío del formulario vía FORMULARIO OCULTO (sin CORS) */
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const name = input.value.trim().replace(/\s+/g, " ");
+      if (!name) return;
+
+      const current = getCachedFamilies();
+      if (current.some(f => f.toLocaleLowerCase("es-MX") === name.toLocaleLowerCase("es-MX"))) {
+        alert("Esta familia ya aparece en la lista.");
+        return;
+      }
+
+      // 🎆 Explosión
+      const btn  = document.getElementById("rsvpBtn");
+      const rect = btn.getBoundingClientRect();
+      createSnowExplosion(rect.left + rect.width / 2, rect.top + rect.height / 2);
+
+      // Optimista
+      const updated = [...current, name];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      renderFamilies(updated);
+      input.value = "";
+      setStatus("⏳ Guardando tu confirmación...");
+
+      if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
+        setStatus("⚠️ Falta configurar APPS_SCRIPT_URL.");
+        return;
+      }
+
+      // ✅ ENVÍO VÍA FORMULARIO OCULTO → target iframe
+      const hiddenForm  = document.getElementById("rsvp_sink_form");
+      const hiddenInput = document.getElementById("rsvp_sink_name");
+      hiddenForm.action = APPS_SCRIPT_URL;
+      hiddenInput.value = name;
+      hiddenForm.submit();
+
+      // Esperar y verificar
+      setTimeout(async function(){
+        await loadFamiliesFromSheet();
+        const refreshed = getCachedFamilies();
+        const nameLower = name.toLocaleLowerCase("es-MX");
+        const llego = refreshed.some(f => f.toLocaleLowerCase("es-MX") === nameLower);
+
+        if (llego) {
+          setStatus("✅ ¡Confirmación guardada! Ya apareces en la lista.");
+        } else {
+          const sinNombre = refreshed.filter(f => f.toLocaleLowerCase("es-MX") !== nameLower);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(sinNombre));
+          renderFamilies(sinNombre);
+          setStatus("⚠️ No se pudo confirmar en el servidor. Intenta de nuevo.");
+        }
+      }, 2500);
+    });
+
+    // 🚀 Al cargar
     loadFamiliesFromSheet();
-    // 🔄 Refresca cada 30 segundos para mantener la lista "en vivo"
+    // 🔄 Refresca cada 30 s
     setInterval(loadFamiliesFromSheet, 30000);
   </script>
 </body>
