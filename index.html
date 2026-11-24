@@ -525,42 +525,68 @@
   });
 }
 
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const name = input.value.trim().replace(/\s+/g, " ");
-      if (!name) return;
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const name = input.value.trim().replace(/\s+/g, " ");
+  if (!name) return;
 
-      const current = getCachedFamilies();
-      if (current.some(f => f.toLocaleLowerCase("es-MX") === name.toLocaleLowerCase("es-MX"))) {
-        alert("Esta familia ya aparece en la lista.");
-        return;
-      }
+  const current = getCachedFamilies();
+  if (current.some(f => f.toLocaleLowerCase("es-MX") === name.toLocaleLowerCase("es-MX"))) {
+    alert("Esta familia ya aparece en la lista.");
+    return;
+  }
 
-      const btn  = document.getElementById("rsvpBtn");
-      const rect = btn.getBoundingClientRect();
-      createSnowExplosion(rect.left + rect.width / 2, rect.top + rect.height / 2);
+  // 🎆 Explosión
+  const btn  = document.getElementById("rsvpBtn");
+  const rect = btn.getBoundingClientRect();
+  createSnowExplosion(rect.left + rect.width / 2, rect.top + rect.height / 2);
 
-      // Optimista: agregamos visualmente de inmediato
-      const updated = [...current, name];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      renderFamilies(updated);
-      input.value = "";
+  // Optimista: mostramos el nombre mientras se envía
+  const updated = [...current, name];
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  renderFamilies(updated);
+  input.value = "";
+  setStatus("⏳ Guardando tu confirmación...");
 
-      if (APPS_SCRIPT_URL && !APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
-  // POST con no-cors: enviamos sin intentar leer la respuesta (evita CORS falso)
-  fetch(APPS_SCRIPT_URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify({ name: name })
-  }).catch(function(err){
-    console.warn("Aviso de red al enviar (normal en no-cors):", err);
-  });
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("PEGA_AQUI")) {
+    setStatus("⚠️ Falta configurar APPS_SCRIPT_URL.");
+    return;
+  }
 
-  // Refrescamos la lista desde la hoja (por JSONP) después de 1.2s
-  setTimeout(loadFamiliesFromSheet, 1200);
-}
+  // ✅ POST con FormData (la forma más confiable con no-cors)
+  try {
+    const formData = new FormData();
+    formData.append("name", name);
+
+    fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",   // sin CORS: enviamos sin leer respuesta
+      body: formData      // multipart/form-data → Google nunca pierde el body
+    }).catch(function(err){
+      console.warn("Aviso de red al enviar (normal en no-cors):", err);
     });
+  } catch (err) {
+    console.warn("Error al preparar el POST:", err);
+  }
+
+  // Esperamos y verificamos si el nombre llegó realmente a la hoja
+  setTimeout(async function(){
+    await loadFamiliesFromSheet();
+    const refreshed = getCachedFamilies();
+    const nameLower = name.toLocaleLowerCase("es-MX");
+    const llego = refreshed.some(f => f.toLocaleLowerCase("es-MX") === nameLower);
+
+    if (llego) {
+      setStatus("✅ ¡Confirmación guardada! Ya apareces en la lista.");
+    } else {
+      // No llegó: revertimos la actualización optimista
+      const sinNombre = refreshed.filter(f => f.toLocaleLowerCase("es-MX") !== nameLower);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sinNombre));
+      renderFamilies(sinNombre);
+      setStatus("⚠️ No se pudo confirmar en el servidor. Intenta de nuevo.");
+    }
+  }, 1800);
+});
 
     // 🚀 Al cargar, trae la lista real
     loadFamiliesFromSheet();
